@@ -1,0 +1,38 @@
+For #1 I used a random skybox after my original idea proved to be 
+difficult. My original idea was to grab a galaxy skybox and put a 
+flat Earth on it but for some reason every galaxy skybox I had
+downloaded was not working so i decided to just pick a random one
+and use it. I chose a beach, I think. Then I based the terrain off
+of Angus' terrain displacement code and just changed the image. I 
+did add in my own grass, dirt, and snow (I used ice) textures. At 
+first I had tried to add water, sand, and rock textures to go with
+the beach theme. I replaced the textures accordinly so that the 
+effect would be the same as Angus' original but it wasn't the case
+and my height map looked nothing like a beach with sea cliffs. 
+Finally for the water I just made a new plane, and put it slightly
+above the terrain to give the effect that there was water on spots 
+below sea level and I added in Angus' perlin noise vertex shader to 
+create a slight wavy motion on the water and I also altered the color
+in the fragment shader to give it an aqua blue color. The only thing
+that isn't working as expected (aside from water not being reflective) 
+is that for some odd reason my GUI is not working. The original idea 
+was to allow the user to move the water level up and also let them 
+alter the wavy motion of the water and that didn't workl the GUI is 
+there it just doesn't do anything.
+
+For #2 I decided to attempt to simulate boiling water.I grabbed 
+Angus' perlin noise code again and applied it to a sphere. I then
+changed the FS shader to display a blue color that ended up being 
+this blend of blue and black so it looks more like that dark water
+you find ob google maps when you look at the ocean. I placed the 
+partcle system behind the sphere and changed the particle colors to
+white at first but then realized that gray would have been a better
+fit so I changed the color to gray. For the GUI I basically grabbed 
+the pre existing one that came with the particle system and got rid 
+of a few parameters; mostly the ones that would make (my already 
+unnatural boiling water simulation) it look really awkward and less
+natural. For example, I got rid of turbulance because turbulance made
+it so that the particles kind of all get shot out in a similar 
+direction which isn't the way boiling water works since steam exits 
+in random directions so the user can mostly just manipulate how fast 
+and where the particles go. 

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - blender -json</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background:#777;
+				padding:0;
+				margin:0;
+				overflow:hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				color: #ffffff;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+
+		<script src="js/three.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="_CubeMapVSFS.js"></script>
+		<script src="_HeightMapVSFS.js"></script>
+		<script src="_NoiseDisplaceVSFS.js"></script>
+		<script src="./js/dat.gui.min.js"></script>
+
+		<script>
+			var sbVS = skyBoxVS;
+			var sbFS = skyBoxFS;
+
+			var container; 
+			var camera, scene, renderer, options; //water;
+
+			var skyMesh;
+
+			var texture1 = new THREE.TextureLoader().load('Asakusa.jpg');
+			var dirtTex = new THREE.TextureLoader().load('dirtTexture.jpg');
+			var iceTex = new THREE.TextureLoader().load('iceTexture.png');
+			var grassTex = new THREE.TextureLoader().load('grassTexture.jpg');
+
+			var gui = new dat.GUI( { width: 350 } );
+
+			var heightMaterial;
+
+			var waterPosition = .1;
+
+			init();
+			animate();
+
+			function init()
+			{
+				container = document.getElementById('container');
+
+				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.set(0, 0, 5);
+
+				var controls = new THREE.OrbitControls(camera);
+				controls.update();
+
+				scene = new THREE.Scene();
+
+				options = {
+					waterPosition: waterPosition
+				};
+
+				var cubeMap = new THREE.CubeTextureLoader().load(
+					[
+					'posx.jpg',
+					'negx.jpg',
+					'posy.jpg',
+					'negy.jpg',
+					'posz.jpg',
+					'negz.jpg'
+					]);
+
+				cubeMap.minFilter = THREE.LinearFilter;
+
+				var uniforms = {"tCube": {type: "t", value: cubeMap}};
+
+				var sbMaterial = new THREE.RawShaderMaterial({
+					uniforms: uniforms,
+					vertexShader: sbVS,
+					fragmentShader: sbFS
+				});
+
+				sbMaterial.depthWrite = false;
+				sbMaterial.side = THREE.BackSide;
+
+				var sbGometry = new THREE.BoxGeometry(2000, 2000, 2000);
+
+				skyMesh = new THREE.Mesh(sbGometry, sbMaterial);
+
+				scene.add(skyMesh);
+
+				var plane = new THREE.PlaneGeometry(5, 5, 300, 300);
+
+				var heightUniform =  {
+					displaceAmt: { type: "f", value: 0.0 },
+					tPic: { type: "t", value: texture1  },
+					tGrass: { type: "t", value: grassTex  },
+					tIce: { type: "t", value: iceTex },
+					tDirt: { type: "t", value: dirtTex  },
+				};
+
+				heightMaterial = new THREE.RawShaderMaterial({
+					uniforms: heightUniform,
+					vertexShader: heightMapVS,
+					fragmentShader: heightMapFS
+				});
+
+				var heightMap = new THREE.Mesh(plane, heightMaterial);
+				heightMap.material.side = THREE.DoubleSide;
+				heightMap.rotateX(-Math.PI/3);
+				scene.add(heightMap);
+
+
+				var waterPlane = new THREE.PlaneGeometry(5, 5, 300, 300);
+
+				var waterUniform =  {
+					in_val:  { type: "f", value: 0.0 },
+					displaceAmt: { type: "f", value: 0.0 }, 
+				};
+
+				var waterMaterial = new THREE.RawShaderMaterial({
+					uniforms: waterUniform,
+					vertexShader: noiseDisplaceVS,
+					fragmentShader: noiseDisplaceFS
+				});
+
+				var water = new THREE.Mesh(waterPlane, waterMaterial);
+				water.rotateX(-Math.PI/3);
+				water.position.y = waterPosition;
+				scene.add(water);
+
+
+				gui.add(options, "waterPosition", .1, 1.0);
+				
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+
+				window.addEventListener('resize', onWindowResize, false);
+				//document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+			}
+
+			var mouseX = 0.5;
+			var mouseY = 0.5;
+			var prevMouseX= 0.5;
+			var prevMouseY = 0.5;
+
+			function animate() 
+			{
+				requestAnimationFrame( animate );
+				render();
+			}
+
+			function render()
+			 {
+				if (mouseX < prevMouseX)
+				{
+					camera.rotation.y += 0.03;
+				} 
+				else if (mouseX > prevMouseX) 
+				{
+					camera.rotation.y -= 0.03;
+				}
+
+				prevMouseX = mouseX;
+				prevMouseY = mouseY;
+
+				var time = performance.now();
+				var obj1 = scene.children[1];
+				obj1.material.uniforms.displaceAmt.value = 1.0;
+
+				var obj2 = scene.children[2];
+			    obj2.material.uniforms.in_val.value += 0.02;
+				obj2.material.uniforms.displaceAmt.value = .05 * (Math.sin(time * 0.001));
+
+				renderer.render( scene, camera );
+			}
+
+			function onWindowResize(event)
+			{
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+			}
+
+			
+			function onDocumentMouseMove(event)
+			{
+				event.preventDefault();
+
+				mouseX = (event.clientX / window.innerWidth) ;
+				mouseY = -(event.clientY / window.innerHeight) ;
+			}
+
+		</script>
+	</body>
+	</html>
