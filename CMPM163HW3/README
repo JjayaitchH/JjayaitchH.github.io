@@ -1,0 +1,19 @@
+Number 2
+So for number 2, I used the TA's code from section as a base. This includes all the shadertoy reference
+code copied over to create the program. While we were supposed to make our own phong lighting, I was having
+a really hard time so I also ported that over from the shadertoy example as well. What I did was create an 
+ellipsoid. From there I applied one of the effects I saw on the reference links provided. I duplicated the 
+ellipsoid miltiple times. This did not come out as nice as I had expected, however, and most of the ellipsoids
+were clumped up as you will be able to see when you run the program. After that I made a cube and a sphere,
+I then passed them into a function that blended both shapes but as you will see, it doesn't go back and forth between 
+sphere and cube. It actually starts off as a giant rounded out cube that cover the entire screen. From there
+it slowly shrinks back into a regualr cube then a tiny sphere. The change between the regular cube to a sphere
+is really awkward and sudden and I wasn't sure why and I wasn't able to fix it. That's about it for this program.
+I do recommend staring at the program for a good 3 minutes because some interesting things happen but it takes time. They're  kind of 
+weird but I thought they were also pretty cool.
+
+Number 3
+For this one I was interested in smooth particle hydrodynamics because it sounded really fancy so I looked it up 
+and wrote about it. Since I am turning in this assignment late I went back and fixed part 2. I just put down the 
+names of my official teammates as well as what out final project will be becase it is not anything we researched in part 1
+of this question. 
